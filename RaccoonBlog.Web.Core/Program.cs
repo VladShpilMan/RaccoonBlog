@@ -1,7 +1,22 @@
+using RaccoonBlog.Web.Core.Infrastructure.Data;
+using Raven.Client.Documents;
+using Raven.Client.Documents.Session;
+
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.Configure<NewDatabaseSettings>(builder.Configuration.GetSection("RavenSettings"));
+builder.Services.AddSingleton<IDocumentStoreHolder, DocumentStoreHolder>();
+builder.Services.AddSingleton<IDocumentStore>(sp => 
+    sp.GetRequiredService<IDocumentStoreHolder>().DocumentStore);
+builder.Services.AddScoped<IAsyncDocumentSession>(sp => 
+    sp.GetRequiredService<IDocumentStoreHolder>().OpenAsyncSession());
+
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews()
+                .AddJsonOptions(options =>
+                    {
+                        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+                    });
 
 var app = builder.Build();
 
