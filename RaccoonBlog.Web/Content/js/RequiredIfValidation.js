@@ -2,12 +2,12 @@
 /// <reference path="jquery.validate.unobtrusive.js" />
 
 $.validator.addMethod('requiredif',
-    function (value, element, parameters) {
-        var id = '#' + parameters['dependentproperty'];
+    function (value, element, params) {
+        var id = '#' + params['dependentproperty'];
 
         // get the target value (as a string, 
         // as that's what actual value will be)
-        var targetvalue = parameters['targetvalue'];
+        var targetvalue = params['targetvalue'];
         targetvalue = 
           (targetvalue == null ? '' : targetvalue).toString();
 
@@ -25,7 +25,7 @@ $.validator.addMethod('requiredif',
         // required field validator functionality
         if (targetvalue === actualvalue)
             return $.validator.methods.required.call(
-              this, value, element, parameters);
+              this, value, element, params);
 
         return true;
     }

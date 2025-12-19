@@ -41,7 +41,7 @@ namespace RaccoonBlog.Web.Helpers
 					identity);
 			}
 		}
-
+		
 		public void SignOut()
 		{
 			authenticationManager.SignOut();

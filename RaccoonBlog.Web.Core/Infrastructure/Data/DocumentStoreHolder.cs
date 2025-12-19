@@ -1,7 +1,9 @@
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.Options;
+using RaccoonBlog.Web.Core.Infrastructure.Indexes;
 using Raven.Client.Documents;
 using Raven.Client.Documents.BulkInsert;
+using Raven.Client.Documents.Indexes;
 using Raven.Client.Documents.Operations;
 using Raven.Client.Documents.Session;
 using Raven.Client.Documents.Subscriptions;
@@ -37,9 +39,9 @@ public class DocumentStoreHolder : IDocumentStoreHolder, IDisposable
     private readonly NewDatabaseSettings _settings;
     private readonly ILogger<DocumentStoreHolder> _logger;
 
-    public DocumentStoreHolder(IOptions<NewDatabaseSettings> settings, ILogger<DocumentStoreHolder> logger)
+    public DocumentStoreHolder(NewDatabaseSettings settings, ILogger<DocumentStoreHolder> logger)
     {
-        _settings = settings.Value;
+        _settings = settings;
         _logger = logger;
 
         ValidateSettings(_settings);
@@ -105,16 +107,16 @@ public class DocumentStoreHolder : IDocumentStoreHolder, IDisposable
         _logger.LogInformation($"RavenDB DocumentStore initialized for {_settings.DatabaseName} at {_settings.Urls[0]}");
 
 #if DEBUG
-        try 
-        {
-            // IndexCreation.CreateIndexes(typeof(Program).Assembly, store);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to deploy indexes in Debug mode.");
-        }
+        DeployIndexes(store);
 #endif
         return store;
+    }
+    
+    private void DeployIndexes(IDocumentStore store)
+    {
+        var database = _settings.DatabaseName;
+        var commonAssembly = typeof(Tags_Count).Assembly;
+        IndexCreation.CreateIndexes(commonAssembly, store, database: database);
     }
 
     public IDocumentSession OpenSession()

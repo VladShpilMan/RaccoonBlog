@@ -10,4 +10,8 @@
     <PackageReference Include="RavenDB.Client" Version="7.1.4" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Views\Section\" />
+  </ItemGroup>
+
 </Project>

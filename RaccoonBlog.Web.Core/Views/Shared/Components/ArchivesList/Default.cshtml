@@ -1,0 +1,28 @@
+@using System.Globalization
+@model IList<RaccoonBlog.Web.Core.Infrastructure.Indexes.Posts_ByMonthPublished_Count.ReduceResult>
+
+<nav id="archive">
+    <ul>
+        @{
+            var url = Url.Action("Archive", "Posts", new { year = 9999, month = 99 });
+
+            foreach (var g in Model.GroupBy(x => x.Year))
+            {
+                <li>
+                    <a href="#">@g.Key</a>
+                    <ul>
+                        @foreach (var postCount in g)
+                        {
+                            <li>
+                                <a href="@(url.Replace("9999", postCount.Year.ToString()).Replace("99", postCount.Month.ToString()))">
+                                    @(new DateTime(postCount.Year, postCount.Month, 1).ToString("MMMM", CultureInfo.InvariantCulture)) 
+                                </a> 
+                                (@postCount.Count)
+                            </li>
+                        }
+                    </ul>
+                </li>
+            }
+        }
+    </ul>
+</nav>

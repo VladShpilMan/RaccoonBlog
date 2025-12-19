@@ -1,0 +1,107 @@
+@model RaccoonBlog.Web.Core.Models.BlogConfig
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RaccoonBlog :: Welcome</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js" type="text/javascript"></script>
+    <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+    <script src="@Url.Content("~/Content/js/jquery.validate.min.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/js/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+</head>
+<body>
+    <h2>Welcome to RaccoonBlog!</h2>
+    <p>
+       RaccoonBlog is an official sample application for <a href="http://ravendb.net">RavenDB</a>, and as such it demonstrates best practices for using RavenDB.
+       RaccoonBlog is production ready, and is already driving real-world blogs like <a href="http://ayende.com">Ayende.com</a> and the <a href="http://blogs.hibernatingrhinos.com">RavenDB blog</a>.
+    </p>
+    <p>Going through the sources, you can learn how to use RavenDB, and about various features it offers.</p>
+    <p>Starting your own blog using this software is easy, just review the blog configuration below, submit it when you are done, and your blog will be ready.</p>
+
+    <form asp-controller="Welcome" asp-action="CreateBlog" method="post">
+       
+       <div asp-validation-summary="ModelOnly"></div>
+       
+       <fieldset>
+          <legend>BlogConfig</legend>
+
+          <div class="editor-label">
+             <label asp-for="Title"></label>
+          </div>
+          <div class="editor-field">
+             <input asp-for="Title" />
+             <span asp-validation-for="Title"></span>
+          </div>
+
+          <div class="editor-label">
+             <label asp-for="OwnerEmail"></label>
+          </div>
+          <div class="editor-field">
+             <input asp-for="OwnerEmail" />
+             <span asp-validation-for="OwnerEmail"></span>
+          </div>
+
+          <div class="editor-label">
+             <label asp-for="Subtitle"></label>
+          </div>
+          <div class="editor-field">
+             <input asp-for="Subtitle" />
+             <span asp-validation-for="Subtitle"></span>
+          </div>
+
+          <div class="editor-label">
+             <label asp-for="CustomCss"></label>
+          </div>
+          <div class="editor-field">
+             <input asp-for="CustomCss" />
+             <span asp-validation-for="CustomCss"></span>
+          </div>
+
+          <div class="editor-label">
+             <label asp-for="Copyright"></label>
+          </div>
+          <div class="editor-field">
+             <input asp-for="Copyright" />
+             <span asp-validation-for="Copyright"></span>
+          </div>
+
+          <div class="editor-label">
+             <label asp-for="AkismetKey"></label>
+          </div>
+          <div class="editor-field">
+             <input asp-for="AkismetKey" />
+             <span asp-validation-for="AkismetKey"></span>
+          </div>
+
+          <div class="editor-label">
+             <label asp-for="GoogleAnalyticsKey"></label>
+          </div>
+          <div class="editor-field">
+             <input asp-for="GoogleAnalyticsKey" />
+             <span asp-validation-for="GoogleAnalyticsKey"></span>
+          </div>
+
+          <div class="editor-label">
+             <label asp-for="MetaDescription"></label>
+          </div>
+          <div class="editor-field">
+             <input asp-for="MetaDescription" />
+             <span asp-validation-for="MetaDescription"></span>
+          </div>
+
+          <div class="editor-label">
+             <label asp-for="FuturePostsEncryptionKey"></label>
+          </div>
+          <div class="editor-field">
+             <input asp-for="FuturePostsEncryptionKey" />
+             <span asp-validation-for="FuturePostsEncryptionKey"></span>
+          </div>
+          <p>
+             <input type="submit" value="Setup my blog" />
+          </p>
+       </fieldset>
+    </form>
+</body>
+</html>

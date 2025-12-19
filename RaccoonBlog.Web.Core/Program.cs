@@ -1,22 +1,39 @@
+using RaccoonBlog.Web.Core;
+using RaccoonBlog.Web.Core.Infrastructure.ActionFilters;
 using RaccoonBlog.Web.Core.Infrastructure.Data;
+using RaccoonBlog.Web.Core.Services;
 using Raven.Client.Documents;
 using Raven.Client.Documents.Session;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.Configure<NewDatabaseSettings>(builder.Configuration.GetSection("RavenSettings"));
-builder.Services.AddSingleton<IDocumentStoreHolder, DocumentStoreHolder>();
+var settings = new Settings();
+builder.Configuration.Bind(settings);
+
+builder.Services.AddSingleton(settings);
+
+builder.Services.AddSingleton<IDocumentStoreHolder>(provider =>
+{
+    var resolvedSettings = provider.GetRequiredService<Settings>();
+    var logger = provider.GetRequiredService<ILogger<DocumentStoreHolder>>();
+    return new DocumentStoreHolder(resolvedSettings.RavenSettings, logger);
+});
+
 builder.Services.AddSingleton<IDocumentStore>(sp => 
     sp.GetRequiredService<IDocumentStoreHolder>().DocumentStore);
 builder.Services.AddScoped<IAsyncDocumentSession>(sp => 
     sp.GetRequiredService<IDocumentStoreHolder>().OpenAsyncSession());
 
-// Add services to the container.
-builder.Services.AddControllersWithViews()
-                .AddJsonOptions(options =>
-                    {
-                        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
-                    });
+builder.Services.AddScoped<RaccoonBlogContext>();
+
+builder.Services.AddControllersWithViews(options =>
+        {
+            options.Filters.Add<BlogSetupFilter>();
+        })
+       .AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+        });
 
 var app = builder.Build();
 
