@@ -6,6 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddRavenDb(builder.Configuration);
+builder.Services.AddServices();
 
 var app = builder.Build();
 

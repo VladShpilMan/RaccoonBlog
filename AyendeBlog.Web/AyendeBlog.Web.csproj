@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
     <PackageReference Include="Markdig" Version="0.44.0" />
     <PackageReference Include="RavenDB.Client" Version="7.1.4" />
   </ItemGroup>
