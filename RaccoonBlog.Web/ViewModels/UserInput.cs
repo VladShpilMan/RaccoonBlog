@@ -1,0 +1,38 @@
+using System.ComponentModel.DataAnnotations;
+
+namespace RaccoonBlog.Web.ViewModels
+{
+	public class UserInput
+	{
+		public string Id { get; set; }
+
+		[Display(Name = "Full Name")]
+		[Required]
+		public string FullName { get; set; }
+
+		[Required]
+		[Display(Name = "Email")]
+		[EmailAddress]
+		public string Email { get; set; }
+
+        [Display(Name = "Phone")]
+	    public string Phone { get; set; }
+
+		[Display(Name = "Is Enabled")]
+		public bool Enabled { get; set; }
+
+		[Display(Name = "Twitter Nick")]
+		public string TwitterNick { get; set; }
+
+		[Display(Name = "Related Twitter Nick", Prompt = "This is a nick of someone that you want to recommend the user to follow.")]
+		public string RelatedTwitterNick { get; set; }
+
+		[Display(Name = "Related  Description")]
+		public string RelatedTwitNickDes { get; set; }
+
+		public bool IsNewUser()
+		{
+			return string.IsNullOrEmpty(Id);
+		}
+	}
+}

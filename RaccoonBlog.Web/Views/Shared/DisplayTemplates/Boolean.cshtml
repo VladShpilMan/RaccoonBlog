@@ -1,0 +1,47 @@
+﻿@functions{
+    private bool? Value {
+        get {
+            if (ViewData.Model == null) {
+                return null;
+            }
+            return Convert.ToBoolean(ViewData.Model, System.Globalization.CultureInfo.InvariantCulture);
+        }
+    }
+}
+<div class="display_item">
+    <strong>@ViewData.ModelMetadata.DisplayName</strong>
+    @if (ViewData.ModelMetadata.IsNullableValueType) 
+    {
+        <select class="list-box tri-state" disabled="disabled">
+            @if (!Value.HasValue)
+            {
+                <option value="" selected="selected">Not Set</option>
+                <option value="true">True</option>
+                <option value="false">False</option>
+            }
+            else if (Value.Value)
+            {
+                <option value="">Not Set</option>
+                <option value="true" selected="selected">True</option>
+                <option value="false">False</option>
+            }
+            else
+            {
+                <option value="">Not Set</option>
+                <option value="true">True</option>
+                <option value="false" selected="selected">False</option>
+            }
+        </select>
+    } 
+    else 
+    {
+        @if (Value.HasValue && Value.Value)
+        {
+            <input type="checkbox" class="check-box" disabled="disabled" checked="checked" />
+        }
+        else
+        {
+            <input type="checkbox" class="check-box" disabled="disabled" />
+        }
+    }
+</div>

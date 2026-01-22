@@ -1,0 +1,438 @@
+﻿@using RaccoonBlog.Web.Infrastructure.Common
+@model PostViewModel
+@{
+    string title = @Model.Post.Title;
+    ViewBag.Title = title;
+}
+@{
+    ViewBag.CurrentUrl = Url.Action("Details", new { Model.Post.Id, Model.Post.Slug });
+}
+
+@section HeaderAdditions
+{
+    @{
+        var description = PostHelper.GetMetaDescription(Model.Post.Body);
+        var url = $"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.Path}{Context.Request.QueryString}";
+    }
+    <meta name="description" content="@description">
+
+    <meta property="og:site_name" content="@ViewBag.BlogConfig.Title">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="@title">
+    <meta property="og:description" content="@description">
+    <meta property="og:url" content="@url">
+
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:creator" content="@("@")@ViewBag.BlogConfig.TwitterLogin">
+    <meta name="twitter:site" content="@("@")@ViewBag.BlogConfig.TwitterLogin">
+    <meta name="twitter:title" content="@title">
+    <meta name="twitter:description" content="@description">
+    <meta name="twitter:url" content="@url">
+
+    @{
+        var tags = Model.Post.Tags.Select(tag => tag.Name);
+        string link;
+
+        if (tags.Any(tag => tag.Equals("ravendb.net", StringComparison.InvariantCultureIgnoreCase)))
+        {
+            var path = "articles/" + Model.Post.Slug;
+            link = "https://ravendb.net/" + path;
+        }
+        else
+        {
+            link = Url.AbsoluteAction(Context.Request, "Details", new {Model.Post.Id, Model.Post.Slug});
+        }
+
+        <link rel="canonical" href="@link">
+    }
+}
+
+@{
+    var currentUrl = $"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.Path}{Context.Request.QueryString}";
+}
+
+<article class="article-body">
+    @Html.Partial("NextPrevNav")
+    <header>
+        <time>
+            <strong>@Model.Post.PublishedAt.ToString("MMM dd")</strong>
+            <span>@Model.Post.PublishedAt.ToString("yyyy")</span>
+        </time>
+        <a asp-controller="PostDetails" asp-action="Details" asp-route-id="@Model.Post.Id" asp-route-slug="@Model.Post.Slug">
+            @if (Model.SeriesInfo == null)
+            {
+                <h2>@Model.Post.Title</h2>
+            }
+            else
+            {
+                <h2><span class="seriesTitle">@Html.Raw(TitleConverter.ToSeriesTitle(Model.Post.Title))</span>@Html.Raw(TitleConverter.ToPostTitle(Model.Post.Title))</h2>
+            }
+        </a>
+    </header>
+    <div class="timetoread">
+        @{
+            var timeToRead = PostHelper.CalculateTimeToRead(@Model.Post.Body);
+        }
+        <div>
+            <span class="icomoon-position icon-time" aria-hidden="true"></span>
+            time to read <strong class="force">@timeToRead.TimeToReadInMinutes min</strong> | <strong class="force">@timeToRead.WordCount words</strong>
+        </div>
+    </div>
+    <hr />
+    <div class="articleContent clearfix">
+        <div class="text-wrapper">
+            @Model.Post.Body
+        </div>
+    </div>
+    <div class="postData">
+        <a style='text-decoration:none;' href='@string.Format("http://twitter.com/intent/tweet?status={0}+{1} via @{2}", Model.Post.Title, currentUrl, Model.Post.Author.TwitterNick)'>
+            <span class="icomoon icon-twitter"></span><span>Tweet</span>
+        </a>
+        <a style='text-decoration:none;' type="icon_link" onclick="window.open('@string.Format("http://www.facebook.com/sharer/sharer.php?u={0}&title={1}", currentUrl, Model.Post.Title)','sharer','toolbar=0,status=0,width=580,height=325');" href="javascript: void(0)">
+            <span class="icomoon icon-facebook"></span><span>Share</span>
+        </a>
+        <a style='text-decoration:none;' type="icon_link" onclick="popUp=window.open('@string.Format("https://www.linkedin.com/shareArticle?mini=true&url={0}&title={1}", currentUrl, Model.Post.Title)', 'popupwindow', 'scrollbars=yes,width=600,height=400');popUp.focus();return false" href="javascript: void(0)">
+            <span class="icomoon icon-linkedin"></span><span>Share</span>
+        </a>
+        <a href="#comments">
+            <span class="icomoon-position glyphicon icon-comment" aria-hidden="true"></span><span>@Model.Comments.Count comments</span>
+        </a>
+        @if (Model.Post.Tags.Count > 0)
+        {
+            <div class="tags pull-right-lg">
+                <span class="icomoon-position icon-tag" aria-hidden="true"></span> Tags:
+                <ul>
+                    @foreach (var tag in Model.Post.Tags)
+                    {
+                        <li><a asp-controller="Posts" asp-action="Tag" asp-route-slug="@tag.Slug">@tag.Name</a></li>
+                    }
+                </ul>
+            </div>
+        }
+        <div class="clearfix"></div>
+        <hr style="margin: 0;" />
+    </div>
+    <div class="related-posts">
+        <h4 class="related-posts_heading">
+            <svg width="18" height="18" viewBox="0 0 658 876" fill="#388ee9" xmlns="http://www.w3.org/2000/svg">
+                <path d="M395.6 0.199219H0.400391V875.399H658V262.599L395.6 0.199219ZM352.4 65.7992L592.4 305.799H352.4V65.7992ZM509.2 720.199H150.8V632.199H510.8V720.199H509.2ZM509.2 545.799H150.8V457.799H510.8V545.799H509.2Z" />
+            </svg>
+            Related posts that you may find interesting:
+        </h4>
+        <div class="related-posts_items">
+            @foreach (var related in Model.Related)
+            {
+                <div class="related-posts_item" tabindex="0" data-href="@Url.Post(related.DomainId, related.Slug)">
+                    <div class="related-posts_mainlink">
+                        <span class="related-posts_date">@related.PublishedAt.ToString("dd MMM yyyy")</span>
+                        <span class="related-posts_title">@Html.Raw(@related.Title)</span>
+                    </div>
+                    @if (related.Tags != null && related.Tags.Count > 0)
+                    {
+                        <div class="related-posts_tags">
+                            <div class="related-posts_tags_header">
+                                <div class="icomoon-position icon-tag" aria-hidden="true"></div>
+                            </div>
+                            @{
+                                var tagList = related.Tags.ToList();
+                                var maxTags = 3;
+                            }
+                            @for (int i = 0; i < tagList.Count; i++)
+                            {
+                                var tag = tagList[i];
+                                var tagSlug = SlugConverter.TitleToSlug(tag);
+                                var extraClass = i >= maxTags ? "related-posts_tag--extra" : "";
+                                <a class="related-posts_tag @extraClass" asp-controller="Posts" asp-action="Tag" asp-route-slug="@tagSlug">@tag</a>
+                            }
+                            @if (tagList.Count > maxTags)
+                            {
+                                <span class="related-posts_tag_extra">+@(tagList.Count - maxTags)</span>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+    @Html.Partial("NextPrevNav")
+
+    @if (Model.SeriesInfo != null)
+    {
+        <section class="postsInSeries" data-state="closed">
+            <h4 class="text-left">
+                More posts in <a href="@Url.Series(Model.SeriesInfo.SeriesId, Model.SeriesInfo.SeriesSlug)">
+                    &quot;@Html.Raw(Model.SeriesInfo.SeriesTitle)&quot;
+                </a> series:
+            </h4>
+            <ol>
+                @foreach (var post in Model.SeriesInfo.PostsInSeries)
+                {
+                    if (post.PublishAt >= DateTimeOffset.Now)
+                    {
+                        <li><em>(@(post.PublishAt.ToString("dd MMM yyyy")))</em>&nbsp;@(post.Title)</li>
+ }
+                    else
+                    {
+                        if (post.Id == Model.Post.Id)
+                        {
+                            <li><strong><em>(@(post.PublishAt.ToString("dd MMM yyyy")))</em>&nbsp;<a href="@Url.Action("Details", new { post.Id, post.Slug })">@(post.Title)</a></strong></li>
+ }
+                        else
+                        {
+                            <li><em>(@(post.PublishAt.ToString("dd MMM yyyy")))</em>&nbsp;<a href="@Url.Action("Details", new { post.Id, post.Slug })">@(post.Title)</a></li>
+}
+                    }
+                }
+            </ol>
+            @if (Model.SeriesInfo.PostsInSeries.Count > 3)
+            {
+                <button class="morePosts btn btn-sm btn-default">show all</button>}
+        </section>
+    }
+    <hr />
+</article>
+
+<section class="comments">
+    <a name="comments"></a>
+    <h2>Comments</h2>
+
+    @foreach (var comment in Model.Comments)
+    {
+        if (@comment.IsImportant)
+        {
+            <article class="comment important">
+                <header>
+                    <a name='@(string.Format("comment{0}", (comment.Id)))'></a>
+                    <div class="avatar">
+                        <img src='@(string.Format("https://www.gravatar.com/avatar.php?gravatar_id={0}&size=50&default=identicon", @comment.EmailHash))' alt="@comment.Author" />
+                    </div>
+                    <time>
+                        <strong>@DateTime.Parse(@comment.CreatedAt).ToString("dd MMM yyyy")</strong><br />
+                        <span>@DateTime.Parse(@comment.CreatedAt).ToString("HH:mm tt")</span>
+                    </time>
+                    <div class="postedBy">
+                        <a href="@comment.Url" target="_blank" title='@(string.Format("Comment by {0}", @comment.Author))'>@comment.Author</a>
+                    </div>
+                </header>
+                <div class="comment-body">
+                    @comment.Body
+                </div>
+            </article>
+        }
+        else
+        {
+            <article class="comment">
+                <header>
+                    <a name='@(string.Format("comment{0}", (comment.Id)))'></a>
+                    <div class="avatar">
+                        <img src='@(string.Format("https://www.gravatar.com/avatar.php?gravatar_id={0}&size=50&default=identicon", @comment.EmailHash))' alt="@comment.Author" />
+                    </div>
+                    <time>
+                        <strong>@DateTime.Parse(@comment.CreatedAt).ToString("dd MMM yyyy")</strong><br />
+                        <span>@DateTime.Parse(@comment.CreatedAt).ToString("HH:mm tt")</span>
+                    </time>
+                    <div class="postedBy">
+                        <a href="@comment.Url" target="_blank" title='@(string.Format("Comment by {0}", @comment.Author))'>@comment.Author</a>
+                    </div>
+                </header>
+                <div class="comment-body">
+                    @comment.Body
+                </div>
+            </article>
+        }
+    }
+
+    <article class="comment preview">
+        <h4 class="preview-title">Comment preview</h4>
+        <header>
+            <a name="comment-preview"></a>
+            <div class="avatar">
+                <img src='https://www.gravatar.com/avatar.php?gravatar_id={0}&size=50&default=identicon' alt="" />
+            </div>
+            <time>
+            </time>
+            <div class="postedBy">
+                <a href=""></a>
+            </div>
+        </header>
+        <div class="comment-body">
+        </div>
+    </article>
+
+    <article id="postComment">
+        @if (Model.Post.IsCommentAllowed == false || Model.AreCommentsClosed)
+        {
+            <div class="commentsClosedMessage">Comments have been closed on this topic.</div>
+        }
+        else
+        {
+
+            <h3 style="float: left">
+                <a id="comments-form-location">Join the conversation...</a>
+            </h3>
+            @*if (Model.IsLoggedInCommenter == false)
+            {
+                <div class="openAuth-wrapper">
+                    <span class="btn">Sign in with</span>
+                    <form action="@Url.Action("Login", "Social")" method="post">
+                        @Html.Hidden("redirectUrl", Url.RelativeToAbsolute((string)ViewBag.CurrentUrl + "#postComment"))
+                        @if (ConfigurationHelper.GoogleOAuthKeys != null)
+                        {
+                            <button type="submit" name="provider" value="Google" class="btn btn-default btn-google"><i class="icon-google"></i></button>
+                        }
+                        @if (ConfigurationHelper.MicrosoftOAuthKeys != null)
+                        {
+                            <button type="submit" name="provider" value="Microsoft" class="btn btn-default btn-ms"><i class="icon-windows"></i></button>
+                        }
+                        @if (ConfigurationHelper.FacebookOAuthKeys != null)
+                        {
+                            <button type="submit" name="provider" value="Facebook" class="btn btn-default btn-fb"><i class="icon-facebook"></i></button>
+                        }
+                        @if (ConfigurationHelper.TwitterOAuthKeys != null)
+                        {
+                            <button type="submit" name="provider" value="Twitter" class="btn btn-default btn-twitter"><i class="icon-twitter"></i></button>
+                        }
+
+                    </form>
+                </div>
+            }*@
+            <div class="clearfix"></div>
+            <div class="comment-form-wrapper">
+                @using (Html.BeginForm("Comment", "PostDetails", new { Model.Post.Id, key = Model.Post.ShowPostEvenIfPrivate }))
+                {
+                    <div class="row">
+                        <div class="form_item form-group col-sm-12 col-md-4">
+                            <label>
+                                <span class="form_item_name">Name</span>
+                            </label>
+                            @Html.TextBoxFor(x => x.Input.Name, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(x => x.Input.Name)
+                        </div>
+                        <div class="form_item form-group col-sm-6 col-md-4">
+
+                            <label>
+                                <span class="form_item_name">Email</span>
+                            </label>
+                            @Html.TextBoxFor(x => x.Input.Email, new { @class = "form-control email", type = "email" })
+                            @Html.ValidationMessageFor(x => x.Input.Email)
+
+                        </div>
+                        <div class="form_item form-group col-sm-6 col-md-4">
+                            <label>
+                                <span class="form_item_name">Url</span>
+                            </label>
+                            @Html.TextBoxFor(x => x.Input.Url, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(x => x.Input.Url)
+                        </div>
+                        <div class="form_item form-group col-sm-12">
+
+                            <label>
+                                <span class="form_item_name">
+                                    Comments
+                                </span>
+                            </label>
+                            &nbsp;
+                            <a href="#" data-toggle="modal" data-target="#markdownHelp"
+                               data-keyboard="true">
+                                <i class="glyphicon glyphicon-info-sign"></i>
+                            </a>
+                            <div class="textarea_wrap">
+                                @Html.TextAreaFor(x => x.Input.Body, new { rows = 9, @class = "form-control" })
+
+                                <span class="lang"
+                                      data-toggle="modal"
+                                      data-target="#markdownHelp"
+                                      data-keyboard="true"></span>
+                            </div>
+                            @Html.ValidationMessageFor(x => x.Input.Body)
+                        </div>
+                        @if (Model.IsTrustedCommenter == false)
+                        {
+                            <div class="form_item form-group col-sm-12">
+                                <label>
+                                    <span class="form_item_name">Human?</span>
+                                </label>
+                                @Recaptcha2Helper.Widget()
+
+                                <span class="captcha-error">
+                                    @Html.ValidationMessage(Recaptcha2Helper.ModelStateErrorKey)
+                                </span>
+                            </div>
+                        }
+                    </div>
+                    <div class="pull-right">
+                        <input type="button" id="commentPreview" value="Comment Preview" class="btn btn-default">
+                        @Html.HiddenFor(x => x.Input.CommenterKey)
+                        <input type="submit" value="Post Comment" class="btn btn-primary">
+                    </div>
+                    <div class="clearfix"></div>
+                }
+            </div>
+        }
+    </article>
+</section>
+
+<div id="markdownHelp" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="row">
+                    <div class="col-sm-10">
+                        <h3 class="modal-title">Markdown formatting</h3>
+                    </div>
+                    <div class="col-sm-2">
+                        <span class="esc-info">
+                            <kbd>ESC</kbd> to close
+                        </span>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                @await Html.PartialAsync("MarkdownHelp")
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Script {
+    <script type="text/javascript">
+        window.twttr = (function (d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0], t = window.twttr || {};
+            if (d.getElementById(id)) return;
+            js = d.createElement(s);
+            js.id = id;
+            js.src = "https://platform.twitter.com/widgets.js";
+            fjs.parentNode.insertBefore(js, fjs);
+            t._e = [];
+            t.ready = function (f) { t._e.push(f); };
+            return t;
+        }(document, "script", "twitter-wjs"));
+        
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.related-posts_item').forEach(function(item) {
+                item.addEventListener('click', function(e) {
+                    if (e.target.closest('.related-posts_tag')) return;
+                    var href = item.getAttribute('data-href');
+                    if (href) {
+                        window.location = href;
+                    }
+                });
+                item.addEventListener('keydown', function(e) {
+                    if ((e.key === 'Enter' || e.key === ' ') && !e.target.closest('.related-posts_tag')) {
+                        var href = item.getAttribute('data-href');
+                        if (href) {
+                            window.location = href;
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+    @Recaptcha2Helper.ScriptRef()
+}

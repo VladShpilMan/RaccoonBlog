@@ -1,0 +1,165 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="format-detection" content="telephone=no" />
+
+
+    <link rel="stylesheet" href="~/css/icomoon.css" asp-append-version="true" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#388ee9">
+    <meta name="msapplication-TileColor" content="#388ee9">
+    <meta name="theme-color" content="#388ee9">
+
+    @if (ViewBag.BlogConfig.MetaDescription != null)
+    {
+        <meta name="description" content="@ViewBag.BlogConfig.MetaDescription">
+    }
+    @{
+        ViewBag.Message = TempData["Message"] as string;
+    }
+    @if (string.IsNullOrWhiteSpace(Context.Request.Query["key"]) == false)
+    {
+        <meta name="robots" content="noindex" />
+    }
+    <title>
+        @if (ViewBag.Title != null)
+        {<text> @ViewBag.Title - </text>}@ViewBag.BlogConfig.Title
+    </title>
+
+    @RenderSection("HeaderAdditions", false)
+    
+    @* ASP.NET Core: CSS from wwwroot *@
+    @Html.RenderTheme(ViewBag.BlogConfig.CustomCss as string)
+    @RenderSection("Style", false)
+</head>
+
+<body class="show-grid">
+    @{
+        var containerClass = "body-container";
+        if (SidebarHelper.ShouldShowSidebar(Context.Request) == false)
+        {
+            containerClass += " hideSidebar";
+        }
+        
+        // Initialize banner to display
+        var banners = new List<Banner>
+        {
+        new Banner {ResourceUrl = "https://ravendb.net/ravendb-vs-mongodb?utm_source=ayende_blog&utm_medium=banner", ImageSrc = "/css/img/banners/ravendb-vs-mongodb.jpg", AltText = "Comparison page for RavenDB and MongoDB"},
+        new Banner {ResourceUrl = "https://ravendb.net/?utm_source=ayende_blog&utm_medium=banner", ImageSrc = "/css/img/banners/ravendb.jpg", AltText = "RavenDB - High-Performance NoSQL Document Database"},
+        new Banner {ResourceUrl = "https://ravendb.net/whitepapers/couchbase-vs-ravendb-performance-at-rakuten-kobo?utm_source=ayende_blog&utm_medium=banner", ImageSrc = "css/img/banners/couchbase-vs-ravendb-whitepaper.png", AltText = "Couchbase vs RavenDB Performance at Rakuten Kobo Whitepaper"},
+        new Banner {ResourceUrl = "https://ravendb.net/workshops?utm_source=ayende_blog&utm_medium=banner", ImageSrc = "/css/img/banners/workshops-ravendb.png", AltText = "RavenDB Workshops - Deep dive into practical use of Document Data Modeling"},
+        new Banner {ResourceUrl = "https://ravendb.net/learn/webinars?utm_source=ayende_blog&utm_medium=banner", ImageSrc = "/css/img/banners/webinars-ravendb.png", AltText = "Deep Dive into RavenDB webinars"},
+        new Banner {ResourceUrl = "https://ravendb.net/lp/ai-agent-creator?utm_source=ayende_blog&utm_medium=banner", ImageSrc = "/css/img/banners/ai-agent.jpg", AltText = "AI Agents, powered by your database - Bring AI into your applications with context, tools, and your data"},
+        };
+
+        var random = new Random();
+        int index = random.Next(banners.Count);
+        var bannerToDisplay = banners[index];
+    }
+    <div class="@containerClass">
+        <div class="leftSide">
+            <header>
+                <a asp-controller="Posts" asp-action="Index" class="logo">
+                    <h1>Oren Eini</h1>
+                    <span class="lead">aka Ayende Rahien</span>
+                </a>
+                <button class="menu-button" id="open-button"><i class="icon-arrow-down hide-sm" aria-hidden="true"></i></button>
+
+            </header>
+
+            <a asp-controller="Posts" asp-action="Index" class="logo-vertical">
+                <h1>Oren Eini</h1>
+            </a>
+
+            <button class="menu-enlarge" id="enlarge-button"><i class="icon-circle-arrow-left hide-sm" aria-hidden="true"></i></button>
+            <div class="collapseMobile flex-grow">
+                <div class="about flex-grow @(ViewBag.IsHomePage ? "home" : string.Empty)">
+                    @await Html.PartialAsync("~/Views/Section/ContactMe.cshtml")
+                </div>
+                <div class="flex-grow"></div>
+                <div class="rewards margin-top">
+                    <a class="mvp-profile-vertical" href="https://mvp.microsoft.com/en-us/PublicProfile/4012807" title="Microsoft MVP Reconnect Oren Eini" target="_blank" rel="nofollow"><img src="~/css/img/mvp-vertical.svg" /></a>
+                    <a class="dzone-profile-vertical" href="https://dzone.com/users/750579/ayende.html" title="DZone 2020 Hall of Fame Award Winner" target="_blank" rel="nofollow"><img src="~/css/img/dzone-vertical.svg" /></a>
+                </div>
+                <div class="pull-down">
+                    @await Component.InvokeAsync("PostsStatistics")
+                    <p class="copyright">Copyright ©️ Ayende Rahien 2004 — @DateTime.Now.Year.ToString()</p>
+                    <small class="text-muted"><a href="@Url.Action("Index", "privacy-policy")" class="legal-link">Privacy Policy</a></small>
+                    <span class="separator margin-left-sm margin-right-sm">·</span>
+                    <small class="text-muted"><a href="@Url.Action("Index", "terms")" class="legal-link">Terms</a></small>
+                </div>
+            </div>
+        </div>
+        <div id="content" class="centerCol flex-grow">
+            <header class="body-header">
+                <div class="search">
+                    <form asp-controller="Search" asp-action="SearchResult" method="get">
+                        <input name="q" type="search" placeholder="search" class="form-control" value="@ViewBag.SearchTerm" />
+                        <input type="submit" />
+                    </form>
+                </div>
+                <div style="display:inline-block">
+                    @if (Html.IsSectionActive("Tags"))
+                    {
+                        <a href="#" id="tags-button">
+                            <span class="icomoon-position icon-tags" aria-hidden="true"></span> filter by tags
+                        </a>
+                    }
+                    @if (Html.IsSectionActive("Archive"))
+                    {
+                        <a href="#" id="archive-button">
+                            <span class="icomoon-position icon-archive" aria-hidden="true"></span> archive
+                        </a>
+                    }
+                </div>
+                <nav class="pull-right views @(ViewBag.ChangeViewStyle == null ? "hide" : "")">
+                    <a href="#" class="stackView" id="stackView">stack view</a>
+                    <a href="#" class="gridView active" id="gridView">grid view</a>
+                </nav>
+
+                <div class="clearfix"></div>
+                <vc:tags-list></vc:tags-list>
+                <vc:archives-list></vc:archives-list>
+            </header>
+            <div class="bnr-carousel">
+                <a href="@bannerToDisplay.ResourceUrl" target="_blank"><img src="@bannerToDisplay.ImageSrc" class="img-responsive img-center" title="@bannerToDisplay.AltText" alt="@bannerToDisplay.AltText" /></a>
+            </div>
+            @RenderBody()
+        </div>
+        <section class="rightSide">
+            @using RaccoonBlog.Web.ViewModels
+            @inject Raven.Client.Documents.Session.IDocumentSession RavenSession
+            @if (Context.User.Identity.IsAuthenticated)
+            {
+                var userDoc = RavenSession.Query<RaccoonBlog.Web.Models.User>()
+                .FirstOrDefault(u => u.Email == User.Identity.Name);
+
+                var adminModel = new CurrentUserViewModel
+                {
+                    FullName = userDoc?.FullName ?? "Admin"
+                };
+
+                @await Html.PartialAsync("~/Views/Section/AdministrationPanel.cshtml", adminModel)
+            }
+            <vc:sidebar-list></vc:sidebar-list>
+        </section>
+    </div>
+
+    <script src="~/js/jquery-1.11.2.js" asp-append-version="true"></script>
+    <script src="~/js/jquery-migrate-1.2.1.js" asp-append-version="true"></script>
+    <script src="~/js/bootstrap.js" asp-append-version="true"></script>
+
+    <script src="~/js/main-bundle.min.js" asp-append-version="true"></script>
+
+    @if (IsSectionDefined("Script"))
+    {
+        @await RenderSectionAsync("Script", required: false)
+    }
+</body>
+</html>
