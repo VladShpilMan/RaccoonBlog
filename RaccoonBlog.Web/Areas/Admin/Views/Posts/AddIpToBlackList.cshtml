@@ -1,0 +1,20 @@
+﻿@model RaccoonBlog.Web.Areas.Admin.ViewModels.AddIpToBlackListViewModel
+
+<h1>Add IP address to blacklist</h1>
+
+@if (Model.AlreadySaved)
+{
+    <p>The address <strong>@Model.IpAddress</strong> was already added to the IP blacklist. Do you want to extend its blocking for another month?</p>
+}
+else
+{
+    <p>Really add <strong>@Model.IpAddress</strong> to the IP blacklist? This will block the IP for a period of 1 month.</p>
+}
+
+<p>
+	@using (Html.BeginForm("AddIpToBlackList", "Posts", Microsoft.AspNetCore.Mvc.Rendering.FormMethod.Post))
+	{
+        @Html.HiddenFor(x => x.IpAddress)
+		<input type="submit" value="Add IP to blacklist" />
+	}
+</p>

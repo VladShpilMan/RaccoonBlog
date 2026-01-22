@@ -1,0 +1,31 @@
+﻿@using Microsoft.AspNetCore.Mvc.Rendering
+@functions{
+    private List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> TriStateValues {
+        get {
+            return new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> {
+                new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem { Text = "Not Set", Value = String.Empty, Selected = !Value.HasValue },
+                new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem { Text = "True", Value = "true", Selected = Value.HasValue && Value.Value },
+                new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem { Text = "False", Value = "false", Selected = Value.HasValue && !Value.Value },
+            };
+        }
+    }
+    private bool? Value {
+        get {
+            if (ViewData.Model == null) {
+                return null;
+            }
+            return Convert.ToBoolean(ViewData.Model, System.Globalization.CultureInfo.InvariantCulture);
+        }
+    }
+}
+<div class="form_item">
+    <label>
+        <span class="form_item_name">@ViewData.ModelMetadata.DisplayName</span>
+        @if (ViewData.ModelMetadata.IsNullableValueType) {
+            @Html.DropDownList(string.Empty, TriStateValues)
+        } else {
+            @Html.CheckBox(string.Empty, Value ?? false)
+        }
+        @Html.ValidationMessage(string.Empty)
+    </label>
+</div>

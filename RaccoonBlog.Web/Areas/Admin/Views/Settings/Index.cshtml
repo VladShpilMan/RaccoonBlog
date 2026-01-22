@@ -1,0 +1,57 @@
+﻿@model RaccoonBlog.Web.Models.BlogConfig
+@{
+    ViewBag.Title = "Blog Configuration";
+}
+@if (ViewData.ModelState.IsValid == false)
+{
+    <div class="form-error">
+        @Html.ValidationSummary(true)
+    </div>
+}
+<h3>Settings</h3>
+<hr />
+@using (Html.BeginForm("Index", "Settings", Microsoft.AspNetCore.Mvc.Rendering.FormMethod.Post, new { @class = "form-horizontal" }))
+{
+    <h4>General</h4>
+    @Html.EditorFor(x => x.Title, "TextLong")
+    @Html.EditorFor(x => x.Subtitle, "TextLong")
+    @Html.EditorFor(x => x.OwnerEmail, "EmailAddress")
+    <hr />
+
+    <h4>Social network logins</h4>
+    @Html.EditorFor(x => x.TwitterLogin, "TextLong")
+    @Html.EditorFor(x => x.FacebookLogin, "TextLong")
+    @Html.EditorFor(x => x.LinkedInLogin, "TextLong")
+    @Html.EditorFor(x => x.GithubLogin, "TextLong")
+    @Html.EditorFor(x => x.RssLogin, "TextLong")
+    <hr />
+
+    <h4>Other</h4>
+    @Html.EditorFor(x => x.MetaDescription, "TextLong")
+    @Html.EditorFor(x => x.Copyright, "TextLong")
+    @Html.EditorFor(x => x.CustomCss, "TextLong")
+    @Html.EditorFor(x => x.AkismetKey, "TextLong")
+    @Html.EditorFor(x => x.GoogleAnalyticsKey, "TextLong")
+    @Html.EditorFor(x => x.MinNumberOfPostForSignificantTag)
+    @Html.EditorFor(x => x.NumberOfDayToCloseComments)
+    @Html.EditorFor(x => x.PostsOnPage)
+    <hr />
+
+    <h4>Future posts RSS access</h4>
+    @Html.EditorFor(x => x.FuturePostsEncryptionKey, "TextLong")
+    @Html.EditorFor(x => x.FuturePostsEncryptionIv, "TextLong", new { maxlength = 16 })
+    @Html.EditorFor(x => x.FuturePostsEncryptionSalt, "TextLong")
+    <hr />
+
+    <h4>Social network integration</h4>
+    @Html.EditorFor(x => x.RedditUser, "TextLong")
+    @Html.EditorFor(x => x.RedditPassword, "TextLong")
+    @Html.EditorFor(x => x.RedditSubredditsToSubmitToOnPublish, "TextLong", new { placeholder = "e.g. /r/test,/r/programming" })
+    <hr />
+
+    <div class="form-group">
+        <div class="col-sm-12">
+            <button type="submit" class="btn btn-primary pull-right">Save</button>
+        </div>
+    </div>
+}

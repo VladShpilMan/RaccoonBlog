@@ -1,0 +1,19 @@
+﻿@model IList<SectionDetails>
+@{
+	Layout = "";
+}
+
+@foreach (var section in Model)
+{
+	if (section.IsActionSection())
+	{
+		@await Html.PartialAsync($"{section.ControllerName}/{section.ActionName}", new { sectionTitle = section.Title })
+	}
+	else
+	{
+		<div id="@Html.ConvertSectionTitleToId(section.Title)">
+			<h4>@(section.Title)</h4>
+			@(section.Body)
+		</div>
+	}
+}

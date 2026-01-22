@@ -1,0 +1,49 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+  </PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+  
+  <!-- Exclude .NET Framework-dependent code that uses System.Web, RhinoMocks, etc. -->
+  <ItemGroup>
+    <Compile Remove="Routing\**" />
+    <Compile Remove="Web\**" />
+    <None Include="Routing\**" />
+    <None Include="Web\**" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\RaccoonBlog.Web\RaccoonBlog.Web.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <!-- Keep compatible packages -->
+    <PackageReference Include="AutoMapper" Version="12.0.1" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.6.16" />
+    <PackageReference Include="RavenDB.Client" Version="7.1.0-rc-71000" />
+    <PackageReference Include="RavenDB.TestDriver" Version="6.0.104" />
+    <PackageReference Include="xunit" Version="2.4.0" />
+    <PackageReference Include="xunit.analyzers" Version="0.10.0" />
+    <PackageReference Include="xunit.core" Version="2.4.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    
+    <!-- Replace RhinoMocks with Moq -->
+    <PackageReference Include="Moq" Version="4.20.70" />
+    
+    <!-- Update RedditSharp -->
+    <PackageReference Include="RedditSharp" Version="2.0.0" />
+  </ItemGroup>
+</Project>

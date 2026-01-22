@@ -1,0 +1,19 @@
+﻿@functions{
+    private bool? Value {
+        get {
+            if (ViewData.Model == null) {
+                return null;
+            }
+            return Convert.ToBoolean(ViewData.Model, System.Globalization.CultureInfo.InvariantCulture);
+        }
+    }
+}
+
+<div class="col-sm-offset-2 col-lg-offset-0 col-sm-10 col-lg-12">
+    <div class="checkbox">
+        <label>
+            @Html.CheckBox(string.Empty, Value ?? false) @ViewData.ModelMetadata.DisplayName
+            @Html.ValidationMessage(string.Empty)
+        </label>
+    </div>
+</div>

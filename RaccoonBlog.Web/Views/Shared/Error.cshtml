@@ -1,0 +1,13 @@
+﻿@{
+    Layout = "~/Views/Shared/_ErrorLayout.cshtml";
+}
+
+<div class="error">
+    <div class="padding">
+        <div class="error-number">
+            #@ViewBag.ErrorCode
+        </div>
+        <img src="~/css/img/error.png" class="error-image">
+        <a asp-controller="Posts" asp-action="Index" class="btn-home">Go to home page</a>
+    </div>
+</div>

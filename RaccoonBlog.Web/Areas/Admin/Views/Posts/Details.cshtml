@@ -1,0 +1,126 @@
+﻿@model AdminPostDetailsViewModel
+@{
+	ViewBag.Title = @Model.Post.Title;
+}
+
+<article class="post">
+	<header>
+	    <h3 class="pull-left-sm"><a href="@Url.Action("Details", new { Model.Post.Id, Model.Post.Slug })">@Model.Post.Title</a></h3>
+
+		<div id="post-admin" class="pull-right-sm">
+			@if ((DateTime.UtcNow - Model.Post.PublishedAt).TotalMilliseconds > 0)
+			{
+				<a class="btn btn-primary" href="@Url.Action("Details", "PostDetails", new { Model.Post.Id, Model.Post.Slug, area = "" })">View</a>
+			}
+			<a class="btn btn-primary" href="@Url.Action("Details", "PostDetails", new { Model.Post.Id, Model.Post.Slug, key = @Model.Post.Key, area = "" })">Private View</a>
+			<a class="btn btn-primary" href="@Url.Action("Edit", "Posts", new { id = @Model.Post.Id})">Edit</a>
+			<form asp-action="Delete" asp-controller="Posts" asp-route-id="@Model.Post.Id" method="post" style="display: inline-block">
+				<input class="btn btn-warning confirm" type="submit" value="Delete" />
+			</form>
+
+		</div>
+	    <div class="clearfix"></div>
+        <hr/>
+	</header>
+	
+	<nav id="headerPrevNext">
+			@if (Model.PreviousPost != null)
+			{
+				<a class="btn btn-default" href="@Url.Action("Details", new { Id = Model.PreviousPost.DomainId })">previous: @Model.PreviousPost.Title</a>
+			}
+		
+			@if (Model.NextPost != null)
+			{
+				<a class="btn btn-default" href="@Url.Action("Details", new { Id = Model.NextPost.DomainId })">next: @Model.NextPost.Title</a>
+			}
+	</nav>
+
+	<div class="post_body raw_html">
+		@Model.Post.Body
+	</div>
+
+	<footer>
+		Published at <time pubdate>@Model.Post.PublishedAt.ToString("r")</time>
+
+		@if (Model.Post.PublishedAt != Model.Post.CreatedAt)
+		{ 
+			<span>
+			| Originally posted at <time>@Model.Post.CreatedAt.ToString("r")</time>
+			</span>
+		}
+	</footer>
+
+	
+	<div class="tags">
+		<ul>
+			@foreach (var name in Model.Post.Tags) {
+				<li><a href="@Url.Action("Tag", "Posts", new { Slug = name, area = string.Empty })">@name</a></li>
+			}
+		</ul>
+	</div>
+	
+    <hr/>
+	<section class="comments">
+		<header>
+			<a name="comments"></a>
+			<h3>Comments (@Model.Comments.Count)</h3>
+		</header>
+		@if (Model.Comments.Count == 0) { 
+			<p>No comments posted yet.</p>
+		}
+		<form action="@Url.Action("CommentsAdmin", new { id = Model.Post.Id })" method="post">
+			@foreach (var comment in Model.Comments) {
+				<article class="comment @(comment.IsImportant ? " important" : null)@(comment.IsSpam ? " spam" : null)">
+					<a name="comment@(comment.Id)"></a>
+					<input type="checkbox" name="commentIds" value="@comment.Id">
+
+					<div class="avatar">
+						<img src="https://www.gravatar.com/avatar.php?gravatar_id=@(comment.EmailHash)&amp;size=50&amp;default=identicon" alt="Gravatar">
+					</div>
+
+				    <div class="comment_title">
+				        <div class="small pull-right-sm">@comment.CreatedAt</div>  <a title="@(string.IsNullOrEmpty(comment.Url) ? "Comment by " + comment.Author : comment.Url)" href="@comment.Url">@comment.Author</a>
+				    </div>
+                    <div class="comment_body">
+                        <p>@comment.Body</p>
+                    </div>
+				</article>
+			}
+			<div id="comments-admin">
+				<input type="submit" name="command" value="Delete" class="btn btn-primary" class="confirm">
+                <input type="submit" name="command" value="Mark Spam" class="btn btn-primary" class="confirm">
+                <input type="submit" name="command" value="Mark Ham" class="btn btn-primary" class="confirm">
+			</div>
+		</form>
+	</section>
+</article>
+
+@if (Model.AreCommentsClosed)
+{ 
+	<div>Comments have been closed on this topic.</div>
+}
+
+@section Script {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $(".comment").click(function (e) {
+                e.stopPropagation();
+            });
+        });
+
+        $(function () {
+            $('.comment').click(function () {
+                var c = $(this).children('input:checkbox');
+                //c.click(function(e) {
+                    //e.preventDefault();
+                    //c.attr('checked', !c.attr('checked'));
+                    //alert('test');
+                //});
+                c.attr('checked', !c.attr('checked'));
+            });
+            $('.confirm').click(function () {
+                if (!confirm('Are you sure you want to ' + $(this).val().toLowerCase() + '?')) return false;
+            });
+        });
+    </script>
+}

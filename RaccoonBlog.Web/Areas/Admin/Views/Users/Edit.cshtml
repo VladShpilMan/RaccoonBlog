@@ -1,0 +1,34 @@
+﻿@model UserInput
+@{
+	ViewBag.H1 = Model.IsNewUser() ? "Create new user" : "Edit User " + Model.FullName;
+
+	ViewBag.Title = ViewBag.H1;
+}
+@if (ViewData.ModelState.IsValid == false)
+{ 
+	<div class="form-error">
+		@Html.ValidationSummary(true)
+	</div>
+}
+
+<h3 class="pull-left-sm">@ViewBag.H1</h3>
+<a href="@Url.Action("Index", "Users")" class="btn btn-primary btn-sm pull-right-sm">View users</a>
+<div class="clearfix"></div>
+<hr />
+
+@using (Html.BeginForm("Update", "Users", Microsoft.AspNetCore.Mvc.Rendering.FormMethod.Post, new { @class = "form-horizontal" }))
+{
+    @Html.EditorFor(x => x.Id)
+    @Html.EditorFor(x => x.FullName, "TextLong")
+    @Html.EditorFor(x => x.Email, "EmailAddress")
+	@Html.EditorFor(x => x.Phone, "TextLong")
+    @Html.EditorFor(x => x.TwitterNick, "TextLong")
+    @Html.EditorFor(x => x.RelatedTwitterNick, "TextLong")
+    @Html.EditorFor(x => x.RelatedTwitNickDes, "TextLong")
+    @Html.EditorFor(x => x.Enabled, "BooleanLong")
+    <div class="form-group">
+        <div class="col-sm-12">
+            <button type="submit" class="btn btn-primary pull-right">Save</button>
+        </div>
+    </div>
+}
